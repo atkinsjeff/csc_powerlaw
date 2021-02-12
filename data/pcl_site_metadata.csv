@@ -1,0 +1,33 @@
+siteID,siteName,latitude,longitude,mat,map,pft,ymin,xmax,ymax
+AEF,"Argonne Experimental Forest, MI, USA",45.754,-88.969,5,813,-9912704,5733922,-9901294,5743364
+ARNO,"Arnot Experimental Forest, NY, USA",42.264,-76.627,9,990,,,,
+BCI,"Barro Colorado Island, PA, PA",9.117,-79.852,30,2660,,,,
+BEF,"Bartlett Experimental Forest, NH, USA",44.05,-71.29,6.6,1270,-7940076,5469010,-7930725,5477350
+CUMB,"Cumberland Park, West Lafayette, IN",40.464,-86.918,11.4,965,,,,
+CUNN,"Cunningham Forest, West Lafayette, IN",40.248,-86.83,11.4,965,,,,
+COXH,"Cox-Haggerty, West Lafayette, IN",40.42,-86.97,11.4,965,,,,
+DEF,"Dukes Experimental Forest, MI, USA",46.354696,-87.171569,5,860,-9709387,5832705,-9697735,5845599
+FEF,"Fernow Experimental Forest, WV, USA",39.054,-79.67,10,1473,-8873634,4725608,-885763,4732918
+FFC,"Ford Center and Forest, L'Anse Township, MI",46.643,-88.488,3.9,800,,,,
+GRSM,"Great Smoky Mountain National Park, TN, USA",42.53,-73.23,13.3,1450,,,,
+HARV,"Harvard Forest (NEON), MA, USA",42.53,-72.17,8.2,1100,,,,
+HMC,"Huron Mountain Club, MI, USA",46.87,-87.891,4.2,918,,,,
+HBEF,"Hubbard Brook Experimental Forest, NH, USA",43.939,-71.756,5.2,1400,-7993109,5452444,-7981426,5459685
+IP,"Indian Point Memorial Forest, MI, USA",45.487,-84.685,5.5,817,,,,
+MART,"Martell Forest, IN",,,,,,,,
+MCC,McCormick IN?????,,,,,,,,
+MLBS,"Mountain Lake Biological Station, VA, USA",37.37,-80.52,7.8,1250,,,,
+OSBS,"Ordway-Swisher Biological Station, FL, USA",29.68,-81.99,20,1300,,,,
+PEF,Penobscot Experimental Forest,44.851,-68.624,6.7,1016,,,,
+RICE,"Rice Rivers Center, VA, USA",37.325,-77.206,15.5,1140,,,,
+MAC,"MacArthur Woods, IL",42.219,-87.925,,,,,,
+RYE,"Ryerson Forest Preserven, IL",42.181,-87.915,,,,,,
+SCBI,"Smithsonian Conservation Biological Institute, VA, USA",38.89,-78.14,12.5,1050,,,,
+SERC,"Smithsonian Environmental Research Center, MD, USA",38.88,-76.54,15,1200,,,,
+SWBR,"Sweetbriar College, VA, USA",37.573,-79.085,13.3,1117,,,,
+TALL,"Talladega National Forest, AL, USA",32.95,-87.39,17,1400,,,,
+TREE,"Treehaven, WI, USA",45.49,-89.58,5.4,800,,,,
+UMBS,University of Michigan Biological Station,45.55,-84.7,5.5,817,,,,
+UNDE,"University of Notre Dame Environmental Research Center, WI/MI, USA",46.23,-86.54,4.5,800,,,,
+UVAX,"Observatory Hill, VA, USA",38.034,-78.524,13.15,1143,,,,
+HCEF,"Howland Cooperating Experimental Forest, ME, USA",45.2041,-68.7402,5.3,1050,-7654916,5652508,-7647883,5658546
