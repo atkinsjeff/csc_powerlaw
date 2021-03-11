@@ -186,17 +186,25 @@ p1 <-
   cst %>%
     filter(pft == "ENF") %>%
     data.frame() -> enf
-  summary(lm(enl ~ can_max_ht, data = enf))
+  summary(lm(enl ~ can_max_ht, data = enf)) -> lm.enf
   
+    confint(lm(enl ~ can_max_ht, data = enf))
   cst %>%
     filter(pft == "DBF") %>%
     data.frame() -> DBF
   summary(lm(enl ~ can_max_ht, data = DBF))
+  summary(lm(rugosity ~ can_max_ht, data = DBF))
+  
+  confint(lm(enl ~ can_max_ht, data = DBF))
+  confint(lm(rugosity ~ can_max_ht, data = DBF))
+  
   
   cst %>%
     filter(pft == "MF") %>%
     data.frame() -> mf
   summary(lm(enl ~ can_max_ht, data = mf))
+  
+  confint(lm(enl ~ can_max_ht, data = mf))
   
   
   
@@ -284,6 +292,34 @@ cst %>%
   filter(pft == "DBF") %>%
   data.frame() -> DBF
 summary(lm(log10(rugosity) ~ log10(can_max_ht), data = DBF))
+confint(lm(log10(enl) ~ log10(can_max_ht), data = DBF))
+
+#confint(lm(enl ~ can_max_ht, data = DBF))
+confint(lm(log10(rugosity) ~ log10(can_max_ht), data = DBF))
+confint(lm(log10(fhd) ~ log10(moch), data = cst))
+
+summary(lm(log10(enl) ~ log10(moch), data = DBF))
+confint(lm(log10(enl) ~ log10(moch), data = DBF))
+
+summary(lm(log10(rugosity) ~ log10(moch), data = enf))
+confint(lm(log10(rugosity) ~ log10(moch), data = enf))
+
+summary(lm(log10(rugosity) ~ log10(moch), data = mf))
+confint(lm(log10(rugosity) ~ log10(moch), data = mf))
+
+
+summary(lm(log10(fhd) ~ log10(moch), data = mf))
+confint(lm(log10(fhd) ~ log10(moch), data = mf))
+
+summary(lm(log10(rugosity) ~ log10(can_max_ht), data = mf))
+confint(lm(log10(rugosity) ~ log10(can_max_ht), data = mf))
+
+summary(lm(log10(fhd) ~ log10(can_max_ht), data = mf))
+confint(lm(log10(fhd) ~ log10(can_max_ht), data = mf))
+
+summary(lm(log10(enl) ~ log10(can_max_ht), data = mf))
+confint(lm(log10(enl) ~ log10(can_max_ht), data = mf))
+#write.csv(cst, "power_law_csc_subset_20201110.csv")
 
 #write.csv(cst, "power_law_csc_subset_20201110.csv")
 
@@ -591,6 +627,10 @@ TukeyHSD(aov.pft, "pft")
 # differences among PFT
 summary(aov.enl <- aov(log10(enl) ~ log10(can_max_ht) + pft, data = cst))
 TukeyHSD(aov.enl, "pft")
+
+summary(aov.fhd <- aov(log10(fhd) ~ log10(can_max_ht) + pft, data = cst))
+TukeyHSD(aov.fhd, "pft")
+
 
 
 x11()
