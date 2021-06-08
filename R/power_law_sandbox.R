@@ -1,4 +1,8 @@
+#########################
+# Jeff Atkins via GitHub @atkinsjeff
+#
 
+# dependencies
 require(ggplot2)
 require(tidyverse)
 require(cowplot)
@@ -22,6 +26,7 @@ csc$pft[csc$pft == "BDF"] <- "DBF"
 # 
 unique(csc$siteID)
 
+# filters out plots that don't match criteria
 csc %>%
   filter(cover.fraction > 25) %>%
   filter(can.max.ht < 50) %>%
@@ -35,19 +40,19 @@ csc %>%
                .funs = "mean") %>%
   data.frame() -> cst
 
+# cleans up naming conventions
 names(cst) <- gsub(x = names(cst), pattern = "\\.", replacement = "_")  
 
 
-# csc %>%
-#   group_by(siteID) %>%
-#   summarize(sum(transect.length)) %>%
-#   data.frame()  -> site.table
+# builds list of sites
 cst %>%
   group_by(siteID) %>%
   summarize(plots = n_distinct(plotID)) %>%
   data.frame()  -> site.table
 
+# list of pfts
 pft.table <- data.frame(cst$siteID, cst$pft)
+
 # bring in site metadata
 site.meta <- read.csv("./data/pcl_site_metadata_powerlaw.csv")
 
@@ -72,6 +77,7 @@ names(map.df)[4] <- "no_plots"
 map.df <- na.omit(map.df)
 map.df <- usmap_transform(map.df)
 
+# map!
 x11()
 ggplot()+
   geom_polygon(data = US, aes(x = long, y = lat, group = group), 
@@ -207,28 +213,32 @@ p1 <-
   confint(lm(enl ~ can_max_ht, data = mf))
   
   
+# I don't remember this one and why it is copied
+  # x11(width = 4, height = 4)
+  # ggplot(cst, aes(x = moch, y = rugosity))+
+  #   geom_bin2d(bins = 25, color = "white")+
+  #   scale_fill_gradient(low = "#00AFBB", high = "#FC4E07", name = "No. of Plots" )+
+  #   xlab("MOCH [m]")+
+  #   ylab(expression("R"[c]*{}*" [m]"))+
+  #   theme_bw()+
+  #   theme(legend.justification = c(0.01, 0.98), legend.position = c(0.01, 0.98), 
+  #         legend.background = element_rect(linetype = 1, size = 0.5, color = "black"))
+
+
   
-  x11(width = 4, height = 4)
-  ggplot(cst, aes(x = moch, y = rugosity))+
-    geom_bin2d(bins = 25, color = "white")+
-    scale_fill_gradient(low = "#00AFBB", high = "#FC4E07", name = "No. of Plots" )+
-    xlab("MOCH [m]")+
-    ylab(expression("R"[c]*{}*" [m]"))+
-    theme_bw()+
-    theme(legend.justification = c(0.01, 0.98), legend.position = c(0.01, 0.98), 
-          legend.background = element_rect(linetype = 1, size = 0.5, color = "black"))
-
-p1 <- ggplot(cst, aes(x = log10(can_max_ht), y = log10(rugosity), fill = pft))+
-  geom_point(size = 2, shape = 21)+
-  scale_fill_brewer(palette = "Dark2")+
-  xlab(expression("H"[Max]*{}*" [m]"))+
-  ylab(expression("R"[c]*{}*" [m]"))+
-  theme_light()+
-  theme(legend.justification = c(0.98, 0), legend.position = c(0.98, 0.01), 
-        legend.title = element_blank(), legend.background = element_rect(linetype = 1,
-                                                                         size = 0.5,
-                                                                         color = "black"))
-
+### I think these are wron
+  
+  # p1 <- ggplot(cst, aes(x = log10(can_max_ht), y = log10(rugosity), fill = pft))+
+#   geom_point(size = 2, shape = 21)+
+#   scale_fill_brewer(palette = "Dark2")+
+#   xlab(expression("H"[Max]*{}*" [m]"))+
+#   ylab(expression("R"[c]*{}*" [m]"))+
+#   theme_light()+
+#   theme(legend.justification = c(0.98, 0), legend.position = c(0.98, 0.01), 
+#         legend.title = element_blank(), legend.background = element_rect(linetype = 1,
+#                                                                          size = 0.5,
+#                                                                          color = "black"))
+# 
  #### plots
 #   complexity and height relationships
 
@@ -247,18 +257,18 @@ p1 <- ggplot(cst, aes(x = log10(can_max_ht), y = log10(rugosity), fill = pft, al
               method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
   geom_smooth(data = subset(cst, pft == "MF"),
               method = lm, se = FALSE, color = "#7570B3", size = 2, show.legend = FALSE)+
-    theme(legend.justification = c(0.98, 0), 
+    theme(legend.justification = c(0.98, 0),
           legend.position = c(0.98, 0.01),
-          legend.title = element_blank(), 
+          legend.title = element_blank(),
           legend.background = element_rect(linetype = 1, size = 0.5, color = "black"),
           legend.text = element_text(size = 12))
 
-p2 <- ggplot(cst, aes(x = log10(can_max_ht), y = log10(fhd), fill = pft, alpha = pft))+
+p2 <- ggplot(cst, aes(x = log10(can_max_ht), y = log10(enl), fill = pft, alpha = pft))+
   geom_point(size = 2, shape = 21)+
   scale_fill_brewer(palette = "Dark2")+
   scale_alpha_manual(values = c(0.5, 0.5, 0.5), guide = FALSE)+
   xlab(expression("H"[Max]*{}*" [m]"))+
-  ylab("FHD")+
+  ylab("ENL")+
   theme_light()+
   geom_smooth(data = subset(cst, pft == "DBF"),
               method = lm, se = FALSE, color = "#1B9E77", size = 2, show.legend = FALSE)+
@@ -268,14 +278,15 @@ p2 <- ggplot(cst, aes(x = log10(can_max_ht), y = log10(fhd), fill = pft, alpha =
               method = lm, se = FALSE, color = "#7570B3", size = 2, show.legend = FALSE)+
   theme(legend.position = "none")
 
-p3 <- ggplot(cst, aes(x = log10(can_max_ht), y = log10(enl), fill = pft, alpha = pft))+
+p3 <- ggplot(cst, aes(x = log10(can_max_ht), y = log10(fhd), fill = pft, alpha = pft))+
   geom_point(size = 2, shape = 21)+
   scale_fill_brewer(palette = "Dark2")+
-  scale_alpha_manual(values = c(0.1, 0.1, 0.5), guide = FALSE)+
+  scale_alpha_manual(values = c(0.1, 0.5, 0.5), guide = FALSE)+
   xlab(expression("H"[Max]*{}*" [m]"))+
-  ylab("ENL")+
-  theme_light()+  
-  
+  ylab("FHD")+
+  theme_light()+
+  # geom_smooth(data = subset(cst, pft == "DBF"),
+  #             method = lm, se = FALSE, color = "#1B9E77", size = 2, show.legend = FALSE)+
   geom_smooth(data = subset(cst, pft == "ENF"),
               method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
   geom_smooth(data = subset(cst, pft == "MF"),
@@ -284,9 +295,16 @@ p3 <- ggplot(cst, aes(x = log10(can_max_ht), y = log10(enl), fill = pft, alpha =
 
 
 
+
 require(cowplot)
 x11(width = 10, height = 4)
 plot_grid(p1, p2, p3, labels =  c("A", "B", "C"), nrow = 1, label_size = 12)
+
+
+
+
+
+
 
 cst %>%
   filter(pft == "DBF") %>%
@@ -295,14 +313,45 @@ summary(lm(log10(rugosity) ~ log10(can_max_ht), data = DBF))
 confint(lm(log10(enl) ~ log10(can_max_ht), data = DBF))
 
 #confint(lm(enl ~ can_max_ht, data = DBF))
+slopes <- data.frame(pft = "",
+                     var = "",
+                     slope = 0,
+                     ci = 0)
+
+
+—DBF -2.29 +/- 0.19; ENF -3.70 +/- 0.59; MF -3.16 +/- 0.55 (p = <0.0001 for each combination
+## DBF
+# Rc ~ Hmax 
+summary(lm(log10(rugosity) ~ log10(can_max_ht), data = DBF))
 confint(lm(log10(rugosity) ~ log10(can_max_ht), data = DBF))
+
+
+summary(lm(log10(rugosity) ~ log10(can_max_ht), data = enf))
+confint(lm(log10(rugosity) ~ log10(can_max_ht), data = ENF))
+
+
+summary(lm(log10(rugosity) ~ log10(can_max_ht), data = MF))
+confint(lm(log10(rugosity) ~ log10(can_max_ht), data = MF))
+
 confint(lm(log10(fhd) ~ log10(moch), data = cst))
+
+summary(lm(log10(fhd) ~ log10(can_max_ht), data = mf))
+confint(lm(log10(fhd) ~ log10(can_max_ht), data = mf))
+
+summary(lm(log10(enl) ~ log10(can_max_ht), data = mf))
+confint(lm(log10(enl) ~ log10(can_max_ht), data = mf))
+#write.csv(cst, "power_law_csc_subset_20201110.csv")
+
+
+slopes[1,] <- c("DBF", "Rugosity", 2.497, 0.13)
 
 summary(lm(log10(enl) ~ log10(moch), data = DBF))
 confint(lm(log10(enl) ~ log10(moch), data = DBF))
 
+
 summary(lm(log10(rugosity) ~ log10(moch), data = enf))
 confint(lm(log10(rugosity) ~ log10(moch), data = enf))
+
 
 summary(lm(log10(rugosity) ~ log10(moch), data = mf))
 confint(lm(log10(rugosity) ~ log10(moch), data = mf))
@@ -319,76 +368,12 @@ confint(lm(log10(fhd) ~ log10(can_max_ht), data = mf))
 
 summary(lm(log10(enl) ~ log10(can_max_ht), data = mf))
 confint(lm(log10(enl) ~ log10(can_max_ht), data = mf))
-#write.csv(cst, "power_law_csc_subset_20201110.csv")
+
 
 #write.csv(cst, "power_law_csc_subset_20201110.csv")
 
-# # POWER LAW  AND
-# 
-# 
-# 
-# p1 <- ggplot(cst, aes(x = top_rugosity, y = rugosity, fill = pft))+
-#   geom_point(size = 2, shape = 21)+
-#   scale_fill_brewer(palette = "Dark2")+
-#   xlab("Canopy Height [m]")+
-#   ylab("Canopy Rugosity [m]")+
-#   theme_light()+
-#   theme(legend.justification = c(0.00, 0.98), legend.position = c(0.01, 0.98), 
-#         legend.title = element_blank(), legend.background = element_rect(linetype = 1,
-#                                                                          size = 0.5,
-#                                                                          color = "black"))
-# 
-# p2 <- ggplot(cst, aes(x = top_rugosity, y = fhd, fill = pft))+
-#   geom_point(size = 2, shape = 21)+
-#   scale_fill_brewer(palette = "Dark2")+
-#   scale_x_log10()+
-#   scale_y_log10()+
-#   xlab("Canopy Height [m]")+
-#   ylab("FHD")+
-#   theme_light()+
-#   theme(legend.position = "none")
-# 
-# p3 <- ggplot(cst, aes(x = top_rugosity, y = enl, fill = pft))+
-#   geom_point(size = 2, shape = 21)+
-#   scale_fill_brewer(palette = "Dark2")+
-#   xlab("Canopy Height [m]")+
-#   ylab("ENL")+
-#   theme_light()+
-#   theme(legend.position = "none")
-# 
-# p4 <- ggplot(cst, aes(x = top_rugosity, y = rumple, fill = pft))+
-#   geom_point(size = 2, shape = 21)+
-#   scale_fill_brewer(palette = "Dark2")+
-#   xlab("Canopy Height [m]")+
-#   ylab("Rumple")+
-#   theme_light()+
-#   theme(legend.position = "none")
-# 
-# p5 <- ggplot(cst, aes(x = top_rugosity, y = top_rugosity, fill = pft))+
-#   geom_point(size = 2, shape = 21)+
-#   scale_fill_brewer(palette = "Dark2")+
-#   xlab("Canopy Height [m]")+
-#   ylab("Top Rugosity [m]")+
-#   theme_light()+
-#   theme(legend.position = "none")
-# 
-# p6 <- ggplot(cst, aes(x = top_rugosity, y = gini, fill = pft))+
-#   geom_point(size = 2, shape = 21)+
-#   scale_fill_brewer(palette = "Dark2")+
-#   xlab("Canopy Height [m]")+
-#   ylab("Canopy Gini Coeffcient")+
-#   theme_light()+
-#   theme(legend.position = "none")
-# 
-# require(cowplot)
-# x11(width = 10, height = 6)
-# plot_grid(p1, p2, p3, p4, p5, p6, labels =  c("A", "B", "C", "D", "E", "F"), label_size = 12)
-# 
-# 
-# cst %>%
-#   filter(gini < 0) %>%
-#   data.frame() -> outlier
-# 
+#write.csv(cst, "power_law_csc_subset_20201110.csv")
+
 
 
 
@@ -396,74 +381,55 @@ confint(lm(log10(enl) ~ log10(can_max_ht), data = mf))
 #### 
 #### scale_alpha_manual(values = c(0.5, 0.5, 0.5), guide = FALSE)+
 
-p1 <- ggplot(cst, aes(x = log10(moch), y = log10(rugosity), fill = pft, alpha = pft))+
+p4 <- ggplot(cst, aes(x = log10(moch), y = log10(rugosity), fill = pft, alpha = pft))+
   geom_point(size = 2, shape = 21)+
   scale_fill_brewer(palette = "Dark2")+
-  scale_alpha_manual(values = c(0.5, 0.5, 0.5), guide = FALSE)+
+  scale_alpha_manual(values = c(0.1, 0.1, 0.5), guide = FALSE)+
   xlab("MOCH [m]")+
   ylab(expression("R"[c]*{}*" [m]"))+
   theme_light()+  
-  geom_smooth(data = subset(cst, pft == "DBF"),
-              method = lm, se = FALSE, color = "#1B9E77", size = 2, show.legend = FALSE)+
+  # geom_smooth(data = subset(cst, pft == "DBF"),
+  #             method = lm, se = FALSE, color = "#1B9E77", size = 2, show.legend = FALSE)+
   geom_smooth(data = subset(cst, pft == "MF"),
               method = lm, se = FALSE, color = "#7570B3", size = 2, show.legend = FALSE)+
-  geom_smooth(data = subset(cst, pft == "ENF"),
-              method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
-  theme(legend.justification = c(0.00, 0.98), legend.position = c(0.01, 0.98), 
-        legend.title = element_blank(),  legend.background = element_rect(linetype = 1,
-                                                                         size = 0.5,
-                                                                         color = "black"),
-        legend.text = element_text(size = 12))
+  # geom_smooth(data = subset(cst, pft == "ENF"),
+  #             method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
+  theme(legend.position = "none")
 
-p2 <- ggplot(cst, aes(x = log10(moch), y = log10(fhd), fill = pft, alpha = pft))+
+p5 <- ggplot(cst, aes(x = log10(moch), y = log10(enl), fill = pft, alpha = pft))+
   geom_point(size = 2, shape = 21)+
   scale_fill_brewer(palette = "Dark2")+
-  scale_alpha_manual(values = c(0.1, 0.5, 0.5), guide = FALSE)+
+  scale_alpha_manual(values = c(0.5, 0.1, 0.1), guide = FALSE)+
+  xlab("MOCH [m]")+
+  ylab("ENL")+
+  geom_smooth(data = subset(cst, pft == "DBF"),
+              method = lm, se = FALSE, color = "#1B9E77", size = 2, show.legend = FALSE)+
+  # geom_smooth(data = subset(cst, pft == "MF"),
+  #             method = lm, se = FALSE, color = "#7570B3", size = 2, show.legend = FALSE)+
+  # # geom_smooth(data = subset(cst, pft == "ENF"),
+  #             method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
+  theme_light()+
+  theme(legend.position = "none")
+
+
+p6 <- ggplot(cst, aes(x = log10(moch), y = log10(fhd), fill = pft, alpha = pft))+
+  geom_point(size = 2, shape = 21)+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_alpha_manual(values = c(0.1, 0.1, 0.5), guide = FALSE)+
   xlab("MOCH [m]")+
   ylab("FHD")+
   theme_light()+
-  geom_smooth(data = subset(cst, pft == "ENF"),
-              method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
+  # geom_smooth(data = subset(cst, pft == "ENF"),
+  #             method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
   geom_smooth(data = subset(cst, pft == "MF"),
               method = lm, se = FALSE, color = "#7570B3", size = 2, show.legend = FALSE)+
   theme(legend.position = "none")
 
-p3 <- ggplot(cst, aes(x = log10(moch), y = log10(enl), fill = pft, alpha = pft))+
-  geom_point(size = 2, shape = 21)+
-  scale_fill_brewer(palette = "Dark2")+
-  scale_alpha_manual(values = c(0.1, 0.1, 0.5), guide = FALSE)+
-  xlab("MOCH [m]")+
-  ylab("ENL")+
-  geom_smooth(data = subset(cst, pft == "MF"),
-              method = lm, se = FALSE, color = "#7570B3", size = 2, show.legend = FALSE)+
-  theme_light()+
-  theme(legend.position = "none")
 
-p4 <- ggplot(cst, aes(x = log10(moch), y = log10(rumple), fill = pft, alpha = pft))+
-  geom_point(size = 2, shape = 21)+
-  scale_fill_brewer(palette = "Dark2")+
-  scale_alpha_manual(values = c(0.1, 0.1, 0.5), guide = FALSE)+
-  xlab("MOCH [m]")+
-  ylab("Rumple")+
-  theme_light()+
-  geom_smooth(data = subset(cst, pft == "MF"),
-              method = lm, se = FALSE, color = "#7570B3", size = 2, show.legend = FALSE)+
-  theme(legend.position = "none")
-
-p5 <- ggplot(cst, aes(x = log10(moch), y = log10(top_rugosity), fill = pft, alpha = pft))+
-  geom_point(size = 2, shape = 21)+
-  scale_fill_brewer(palette = "Dark2")+
-  scale_alpha_manual(values = c(0.1, 0.1, 0.5), guide = FALSE)+
-  xlab("MOCH [m]")+
-  ylab(expression("R"[T]*{}*" [m]"))+
-  theme_light()+
-  geom_smooth(data = subset(cst, pft == "MF"),
-              method = lm, se = FALSE, color = "#7570B3", size = 2, show.legend = FALSE)+
-  theme(legend.position = "none")
 
 require(cowplot)
-x11(width = 10, height = 6)
-plot_grid(p1, p2, p3, p4, p5, labels =  c("A", "B", "C", "D", "E"), label_size = 12)
+x11(width = 10, height = 7)
+plot_grid(p1, p2, p3, p4, p5, p6, labels =  c("A", "B", "C", "D", "E", "F"), nrow = 2, label_size = 12)
 
 
 
@@ -601,7 +567,31 @@ cst %>%
 
 
 
-######### RUGOSITY BY HEIGHT BY PFT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#################################################
+
+
+
+######### PFT data sets!
 cst %>%
   filter(pft == "ENF") %>%
   data.frame() -> enf
@@ -612,7 +602,7 @@ summary(lm(log10(rugosity) ~ log10(can_max_ht), data = enf))
 
 cst %>%
   filter(pft == "DBF") %>%
-  data.frame() -> DBF
+  data.frame() -> dbf
 summary(lm(log10(rugosity) ~ log10(can_max_ht), data = DBF))
 
 cst %>%
@@ -620,15 +610,203 @@ cst %>%
   data.frame() -> mf
 summary(lm(rugosity ~ can_max_ht, data = mf))
 
-# differences among PFT
-summary(aov.pft <- aov(log10(rugosity) ~ log10(can_max_ht) + pft, data = cst))
-TukeyHSD(aov.pft, "pft")
 
-# differences among PFT
-summary(aov.enl <- aov(log10(enl) ~ log10(can_max_ht) + pft, data = cst))
-TukeyHSD(aov.enl, "pft")
+###### make df
 
-summary(aov.fhd <- aov(log10(fhd) ~ log10(can_max_ht) + pft, data = cst))
+#confint(lm(enl ~ can_max_ht, data = DBF))
+slopes <- data.frame(PFT = "",
+                     var = "",
+                     Slope = 0,
+                     ci = 0,
+                     z = "")
+## DBF
+# Rc ~ Hmax 
+summary(lm(log10(rugosity) ~ log10(can_max_ht), data = DBF))
+confint(lm(log10(rugosity) ~ log10(can_max_ht), data = DBF))
+slopes[1,] <- c("DBF", "Rugosity", 2.497, 0.13, 1)
+
+#
+summary(lm(log10(rugosity) ~ log10(can_max_ht), data = enf))
+confint(lm(log10(rugosity) ~ log10(can_max_ht), data = enf))
+slopes[2,] <- c("ENF", "Rugosity", 3.37, (3.7986 - 3.37), 2)
+
+
+summary(lm(log10(rugosity) ~ log10(can_max_ht), data = mf))
+confint(lm(log10(rugosity) ~ log10(can_max_ht), data = mf))
+slopes[3,] <- c("MF", "Rugosity", 3.40, (3.7929 - 3.40), 3)
+
+
+# FHD
+summary(lm(log10(fhd) ~ log10(can_max_ht), data = dbf))
+confint(lm(log10(fhd) ~ log10(can_max_ht), data = dbf))
+slopes[4,] <- c("DBF", "FHD", NA, NA, 1)
+
+summary(lm(log10(fhd) ~ log10(can_max_ht), data = enf))
+confint(lm(log10(fhd) ~ log10(can_max_ht), data = enf))
+slopes[5,] <- c("ENF", "FHD", 0.354, (0.4322 - 0.354), 2)
+
+
+summary(lm(log10(fhd) ~ log10(can_max_ht), data = mf))
+confint(lm(log10(fhd) ~ log10(can_max_ht), data = mf))
+slopes[6,] <- c("MF", "FHD", 0.31, (0.3405-0.31206), 3)
+
+
+# ENL
+# FHD
+summary(lm(log10(enl) ~ log10(can_max_ht), data = dbf))
+confint(lm(log10(enl) ~ log10(can_max_ht), data = dbf))
+slopes[7,] <- c("DBF", "ENL", 0.877, (0.9609 - 0.877), 1)
+
+summary(lm(log10(enl) ~ log10(can_max_ht), data = enf))
+confint(lm(log10(enl) ~ log10(can_max_ht), data = enf))
+slopes[8,] <- c("ENF", "ENL", 0.7017, (0.9104 - 0.7017), 2)
+
+
+summary(lm(log10(enl) ~ log10(can_max_ht), data = mf))
+confint(lm(log10(enl) ~ log10(can_max_ht), data = mf))
+slopes[9,] <- c("MF", "ENL", 1.017, (1.193 - 1.017), 3)
+#write.csv(cst, "power_law_csc_subset_20201110.csv")
+
+
+summary(lm(log10(enl) ~ log10(can_max_ht), data = mf))
+confint(lm(log10(rugosity) ~ log10(can_max_ht), data = enf))
+
+#### plots
+#   complexity and height relationships
+
+forte.pal <- fortedata::forte_colors()
+
+p1 <- ggplot(cst, aes(x = log10(can_max_ht), y = log10(rugosity), fill = pft, alpha = pft))+
+  geom_point(size = 2, shape = 21)+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_alpha_manual(values = c(0.5, 0.5, 0.5), guide = FALSE)+
+  xlab(expression("H"[Max]*{}*" [m]"))+
+  ylab(expression("R"[c]*{}*" [m]"))+
+  theme_light()+
+  geom_smooth(data = subset(cst, pft == "DBF"),
+              method = lm, se =TRUE, color = "#1B9E77", size = 2, show.legend = FALSE)+
+  geom_smooth(data = subset(cst, pft == "ENF"),
+              method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
+  geom_smooth(data = subset(cst, pft == "MF"),
+              method = lm, se = FALSE, color = "#7570B3", size = 2, show.legend = FALSE)+
+  theme(legend.justification = c(0, 0.98), 
+        legend.position = c(0.01, 0.98),
+        legend.title = element_blank(), 
+        legend.background = element_rect(linetype = 1, size = 0.5, color = "black"),
+        legend.text = element_text(size = 12))
+
+p2 <- ggplot(cst, aes(x = log10(can_max_ht), y = log10(fhd), fill = pft, alpha = pft))+
+  geom_point(size = 2, shape = 21)+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_alpha_manual(values = c(0.1, 0.5, 0.5), guide = FALSE)+
+  xlab(expression("H"[Max]*{}*" [m]"))+
+  ylab("FHD")+
+  theme_light()+
+  # geom_smooth(data = subset(cst, pft == "DBF"),
+  #             method = lm, se = FALSE, color = "#1B9E77", size = 2, show.legend = FALSE)+
+  geom_smooth(data = subset(cst, pft == "ENF"),
+              method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
+  geom_smooth(data = subset(cst, pft == "MF"),
+              method = lm, se = FALSE, color = "#7570B3", size = 2, show.legend = FALSE)+
+  theme(legend.position = "none")
+
+p3 <- ggplot(cst, aes(x = log10(can_max_ht), y = log10(enl), fill = pft, alpha = pft))+
+  geom_point(size = 2, shape = 21)+
+  scale_fill_brewer(palette = "Dark2")+
+  scale_alpha_manual(values = c(0.5, 0.5, 0.5), guide = FALSE)+
+  xlab(expression("H"[Max]*{}*" [m]"))+
+  ylab("ENL")+
+  theme_light()+  
+  geom_smooth(data = subset(cst, pft == "DBF"),
+              method = lm, se = FALSE, color = "#1B9E77", size = 2, show.legend = FALSE)+
+  geom_smooth(data = subset(cst, pft == "ENF"),
+              method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
+  geom_smooth(data = subset(cst, pft == "MF"),
+              method = lm, se = FALSE, color = "#7570B3", size = 2, show.legend = FALSE)+
+  theme(legend.position = "none")
+
+
+# require(cowplot)
+# x11(width = 10, height = 4)
+# plot_grid(p1, p2, p3, labels =  c("A", "B", "C"), nrow = 1, label_size = 12)
+
+slopes$Slope <- as.numeric(slopes$Slope)
+slopes$ci <- as.numeric(slopes$ci)
+slopes$z <- as.numeric(slopes$z)
+slopes$var <- factor(slopes$var, levels=c("Rugosity", "FHD", "ENL"))
+
+
+p.slope <- ggplot(slopes, aes(x = z, y = Slope, fill = PFT))+
+  geom_errorbar(aes(ymin = slopes$Slope - slopes$ci, ymax = slopes$Slope + slopes$ci), width = 0.1)+
+  geom_point(size = 3, shape = 21)+
+  scale_fill_brewer(palette = "Dark2")+
+  xlab("")+
+  theme_light()+
+  theme(axis.text.x = element_blank())+
+  theme(legend.position = "none")+
+  facet_grid(. ~ var)+
+  theme(strip.text.x = element_text(size=12, color = "black"),
+        strip.text.y = element_text(size=12), strip.background = element_rect(colour= NA, fill= NA))
+
+
+### plot
+require(cowplot)
+x11(width = 10, height = 4)
+top <-plot_grid(p1, p2, p3, labels =  c("A", "B", "C"), nrow = 1, label_size = 12)
+
+
+# then combine with the top row for final plot
+x11(width = 8, height = 6)
+plot_grid(top, p.slope,  labels = c("", "D"), label_size = 12, nrow = 2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+################################################## ANCOVA
+# differences among PFT
+summary(aov.pft1 <- aov(log10(rugosity) ~ log10(can_max_ht) * pft, data = cst))
+summary(aov.pft2 <- aov(log10(rugosity) ~ log10(can_max_ht) + pft, data = cst))
+anova(aov.pft1, aov.pft2)
+
+require(lsmeans)
+m.interaction$coefficients
+m.lst <- lstrends(aov.pft1, "pft", var = log10("can_max_ht"))
+pairs(m.lst)
+#TukeyHSD(aov.pft, "pft")
+# differences among PFT
+summary(aov.enl1 <- aov(log10(enl) ~ log10(can_max_ht) * pft, data = cst))
+summary(aov.enl2 <- aov(log10(enl) ~ log10(can_max_ht) + pft, data = cst))
+anova(aov.enl1, aov.enl2)
+
+summary(aov.fhd <- aov(log10(fhd) ~ log10(can_max_ht) * pft, data = cst))
 TukeyHSD(aov.fhd, "pft")
 
 
@@ -650,7 +828,7 @@ ggplot(cst, aes(x = can_max_ht, y = rugosity, fill = pft, alpha = pft))+
   theme(legend.justification = c(0.98, 0), 
         legend.position = c(0.98, 0.01),
         legend.title = element_blank(), 
-        legend.background = element_rect(linetype = 1, size = 0.5, color = "black"),
+        legend.background = element_rect(lnetype = 1, size = 0.5, color = "black"),
         legend.text = element_text(size = 12))
 
 
@@ -743,3 +921,24 @@ ggplot(cst, aes(x = can_max_ht , y = fhd, alpha = pft, fill = pft))+
     se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE )
 
 
+
+
+  
+  
+  
+  
+  ########
+  # differences in y-intercept
+  confint(lm(log10(rugosity) ~ log10(can_max_ht), data = dbf))
+  confint(lm(log10(rugosity) ~ log10(can_max_ht), data = enf))
+  confint(lm(log10(rugosity) ~ log10(can_max_ht), data = mf))
+  
+  
+  confint(lm(log10(fhd) ~ log10(can_max_ht), data = dbf))
+  confint(lm(log10(fhd) ~ log10(can_max_ht), data = enf))
+  confint(lm(log10(fhd) ~ log10(can_max_ht), data = mf))
+  
+  confint(lm(log10(enl) ~ log10(can_max_ht), data = dbf))
+  confint(lm(log10(enl) ~ log10(can_max_ht), data = enf))
+  confint(lm(log10(enl) ~ log10(can_max_ht), data = mf))
+  

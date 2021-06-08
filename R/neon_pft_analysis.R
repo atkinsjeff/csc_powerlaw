@@ -19,22 +19,26 @@ map.files <- list.files(path = data.dir, pattern = "*vst_mapping*", full.names =
 ind.files %>%
   map_df(~read_csv(., col_types = cols(.default = "c"))) -> ind
 
+map.files %>%
+  map_df(~read_csv(., col_types = cols(.default = "c"))) -> mapp
+
+
 # ind is the data frame of all indinviduals. We need to check the values and test what we want
 
 unique(ind$siteID)
 unique(ind$shape)
-plantStatus
-growthForm
-
-stemDiameter
-height
-
-baseCrownDiameter
-maxCrownDiameter <chr>,
-ninetyCrownDiameter <chr>,
-canopyPosition <chr>,
-shape <chr>,
-maxBaseCrownDiameter <chr>, ninetyBaseCrownDiameter <chr>,
+# plantStatus
+# growthForm
+# 
+# stemDiameter
+# height
+# 
+# baseCrownDiameter
+# maxCrownDiameter <chr>,
+# ninetyCrownDiameter <chr>,
+# canopyPosition <chr>,
+# shape <chr>,
+# maxBaseCrownDiameter <chr>, ninetyBaseCrownDiameter <chr>,
 
 # sort ind down
 pft <- ind[, c("domainID", "siteID", "plotID", "individualID", "plantStatus", "growthForm", "measurementHeight", "stemDiameter",
@@ -146,7 +150,7 @@ df3$crownArea <- pi * (df3$maxCrownDiameter / 2) * (df3$ninetyCrownDiameter / 2)
 
 
 x11(width = 4, height = 4)
-ggplot(df3, aes(x = log10(height), y = log10(crownArea), fill = pft, alpha = pft))+
+p.log <- ggplot(df3, aes(x = log10(height), y = log10(crownArea), fill = pft, alpha = pft))+
   geom_point(size = 2, shape = 21)+
   scale_fill_brewer(palette = "Dark2")+
   scale_alpha_manual(values = c(0.5, 0.5, 0.5), guide = FALSE)+
@@ -223,7 +227,7 @@ ggplot(df4, aes(x = as.factor(dbh_class), y = CDH.ratio, fill = pft))+
         legend.text = element_text(size = 12))
 
 x11(width = 10, height = 4)
-ggplot(df4, aes(x = as.factor(dbh_class), y = CDH.ratio, fill = pft))+
+p.dbh.box <- ggplot(df4, aes(x = as.factor(dbh_class), y = CDH.ratio, fill = pft))+
   geom_boxplot()+
   scale_fill_brewer(palette = "Dark2")+
   #scale_alpha_manual(values = c(0.5, 0.5, 0.5), guide = FALSE)+
@@ -260,7 +264,7 @@ df5$lat_class <- round(df5$decimalLatitude/5) * 5
 
 
 x11(width = 4, height = 4)
-ggplot(df5, aes(x = as.factor(lat_class), y = CDH.ratio, fill = pft))+
+p.lat <- ggplot(df5, aes(x = as.factor(lat_class), y = CDH.ratio, fill = pft))+
   geom_boxplot()+
   scale_fill_brewer(palette = "Dark2")+
   scale_alpha_manual(values = c(0.5, 0.5, 0.5), guide = FALSE)+
@@ -281,7 +285,7 @@ ggplot(df5, aes(x = as.factor(lat_class), y = CDH.ratio, fill = pft))+
 
 
 x11(width = 4, height = 4)
-ggplot(df5, aes(x = elevation, y =CDH.ratio, fill = pft, alpha = pft))+
+p.elev <- ggplot(df5, aes(x = elevation, y =CDH.ratio, fill = pft, alpha = pft))+
   geom_point(size = 2, shape = 21)+
   scale_fill_brewer(palette = "Dark2")+
   scale_alpha_manual(values = c(0.5, 0.5, 0.5), guide = FALSE)+
@@ -299,3 +303,13 @@ ggplot(df5, aes(x = elevation, y =CDH.ratio, fill = pft, alpha = pft))+
         legend.title = element_blank(), 
         legend.background = element_rect(linetype = 1, size = 0.5, color = "black"),
         legend.text = element_text(size = 12))
+
+
+require(cowplot)
+x11(width = 10, height = 4)
+plot_grid(p1, p2, p3, labels =  c("A", "B", "C"), nrow = 1, label_size = 12)
+
+top_row <- plot_grid(p.log, p.elev, p.lat, labels = c('A', 'B', 'C'), nrow = 1, label_size = 12)
+
+x11(width = 10, height = 6)
+plot_grid(top_row, p.dbh.box, labels = c('', 'D'), label_size = 12, ncol = 1)
