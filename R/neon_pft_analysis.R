@@ -50,7 +50,7 @@ pft %>%
 pft %>%
   filter(growthForm == "single bole tree" | growthForm ==   "multi-bole tree"  | growthForm ==  "small tree") -> pft
 
-x11()
+#x11()
 plot(pft$height, pft$maxCrownDiameter)
 
 # bring in map data
@@ -94,7 +94,7 @@ df %>%
   data.frame() -> df
 
 # plot
-x11()
+#x11()
 ggplot(df, aes(x = height, y = maxCrownDiameter, color = as.factor(pft), fill = as.factor(pft)))+
   geom_point(shape = 21, size = 3, color = "black", alpha = 0.3)+
   xlim(0, 75)+
@@ -108,7 +108,7 @@ df$crownArea <- pi * (df$maxCrownDiameter / 2) * (df$ninetyCrownDiameter / 2)
 df %>%
   filter(pft == "ENF" | pft == "DBF") ->df3
 
-x11(width = 10, height = 4)
+#x11(width = 10, height = 4)
 ggplot(df3, aes(x = height, y = maxCrownDiameter))+
   geom_bin2d(bins = 25, color = "white")+
   scale_fill_gradient(low = "#00AFBB", high = "#FC4E07", name = "No. of Trees", limits = c(0, 100), breaks = c(0, 20, 40, 60, 80))+
@@ -121,7 +121,7 @@ ggplot(df3, aes(x = height, y = maxCrownDiameter))+
   facet_grid(.~pft)
 
 
-x11()
+#x11()
 ggplot(df, aes(x = height, y = maxCrownDiameter, fill = pft, alpha = pft))+
   geom_point(size = 2, shape = 21)+
   scale_fill_brewer(palette = "Dark2")+
