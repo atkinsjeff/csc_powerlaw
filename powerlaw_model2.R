@@ -1,6 +1,6 @@
 
 require(tidyverse)
-require(model2)
+require(lmodel2)
 
 rm(list=ls())
 
@@ -80,9 +80,19 @@ fhd_moch <- lmodel2(fhd ~ moch, range.x = "interval", range.y = "interval", data
                    nperm=1000)
 
 
+results <- rbind(cbind(rug_cmh$regression.results[c(1,4),], rug_cmh$confidence.intervals[c(1,4),-1]),
+                 cbind(enl_cmh$regression.results[c(1,4),], enl_cmh$confidence.intervals[c(1,4),-1]),
+                 cbind(fhd_cmh$regression.results[c(1,4),], fhd_cmh$confidence.intervals[c(1,4),-1]),
+                 cbind(rug_moch$regression.results[c(1,4),], rug_moch$confidence.intervals[c(1,4),-1]),
+                 cbind(enl_moch$regression.results[c(1,4),], enl_moch$confidence.intervals[c(1,4),-1]),
+                 cbind(fhd_moch$regression.results[c(1,4),], fhd_moch$confidence.intervals[c(1,4),-1])
+                 )
+                 
+
+
 ## PFT == DBF
 
-logsct.dbf <- logcst[logcst$pft == "DBF",]
+logcst.dbf <- logcst[logcst$pft == "DBF",]
 
 rug_cmh <- lmodel2(rugosity ~ can_max_ht, range.x = "interval", range.y = "interval", data=logcst.dbf,
                    nperm=1000)
@@ -98,9 +108,18 @@ fhd_moch <- lmodel2(fhd ~ moch, range.x = "interval", range.y = "interval", data
                     nperm=1000)
 
 
+results <- rbind(results,
+                 cbind(rug_cmh$regression.results[c(1,4),], rug_cmh$confidence.intervals[c(1,4),-1]),
+                 cbind(enl_cmh$regression.results[c(1,4),], enl_cmh$confidence.intervals[c(1,4),-1]),
+                 cbind(fhd_cmh$regression.results[c(1,4),], fhd_cmh$confidence.intervals[c(1,4),-1]),
+                 cbind(rug_moch$regression.results[c(1,4),], rug_moch$confidence.intervals[c(1,4),-1]),
+                 cbind(enl_moch$regression.results[c(1,4),], enl_moch$confidence.intervals[c(1,4),-1]),
+                 cbind(fhd_moch$regression.results[c(1,4),], fhd_moch$confidence.intervals[c(1,4),-1])
+)
+
 ## PFT == MF
 
-logsct.mf <- logcst[logcst$pft == "MF",]
+logcst.mf <- logcst[logcst$pft == "MF",]
 
 rug_cmh <- lmodel2(rugosity ~ can_max_ht, range.x = "interval", range.y = "interval", data=logcst.mf,
                    nperm=1000)
@@ -115,10 +134,19 @@ enl_moch <- lmodel2(enl~ moch, range.x = "interval", range.y = "interval", data=
 fhd_moch <- lmodel2(fhd ~ moch, range.x = "interval", range.y = "interval", data=logcst.mf,
                     nperm=1000)
 
+results <- rbind(results,
+                 cbind(rug_cmh$regression.results[c(1,4),], rug_cmh$confidence.intervals[c(1,4),-1]),
+                 cbind(enl_cmh$regression.results[c(1,4),], enl_cmh$confidence.intervals[c(1,4),-1]),
+                 cbind(fhd_cmh$regression.results[c(1,4),], fhd_cmh$confidence.intervals[c(1,4),-1]),
+                 cbind(rug_moch$regression.results[c(1,4),], rug_moch$confidence.intervals[c(1,4),-1]),
+                 cbind(enl_moch$regression.results[c(1,4),], enl_moch$confidence.intervals[c(1,4),-1]),
+                 cbind(fhd_moch$regression.results[c(1,4),], fhd_moch$confidence.intervals[c(1,4),-1])
+)
+
 
 ## PFT == ENF
 
-logsct.enf <- logcst[logcst$pft == "ENF",]
+logcst.enf <- logcst[logcst$pft == "ENF",]
 
 rug_cmh <- lmodel2(rugosity ~ can_max_ht, range.x = "interval", range.y = "interval", data=logcst.enf,
                    nperm=1000)
@@ -132,3 +160,25 @@ enl_moch <- lmodel2(enl~ moch, range.x = "interval", range.y = "interval", data=
                     nperm=1000)
 fhd_moch <- lmodel2(fhd ~ moch, range.x = "interval", range.y = "interval", data=logcst.enf,
                     nperm=1000)
+
+
+results <- rbind(results,
+                 cbind(rug_cmh$regression.results[c(1,4),], rug_cmh$confidence.intervals[c(1,4),-1]),
+                 cbind(enl_cmh$regression.results[c(1,4),], enl_cmh$confidence.intervals[c(1,4),-1]),
+                 cbind(fhd_cmh$regression.results[c(1,4),], fhd_cmh$confidence.intervals[c(1,4),-1]),
+                 cbind(rug_moch$regression.results[c(1,4),], rug_moch$confidence.intervals[c(1,4),-1]),
+                 cbind(enl_moch$regression.results[c(1,4),], enl_moch$confidence.intervals[c(1,4),-1]),
+                 cbind(fhd_moch$regression.results[c(1,4),], fhd_moch$confidence.intervals[c(1,4),-1])
+)
+
+
+
+info <- data.frame(x = rep(rep( rep(c("cmh", "moch"), each=3), 4), each=2),
+                   y = rep(rep( rep(c("rug","enl","fhd"), 2), 4), each=2),
+                   pft = rep(c("all","DBF","MF","ENF"), each=12)
+
+)
+
+resuts <- cbind(info, results)
+
+write.csv(results, "powerlaw_RMA_vs_OLS.csv", row.names=FALSE)
