@@ -319,7 +319,7 @@ slopes <- data.frame(pft = "",
                      ci = 0)
 
 
-—DBF -2.29 +/- 0.19; ENF -3.70 +/- 0.59; MF -3.16 +/- 0.55 (p = <0.0001 for each combination
+#—DBF -2.29 +/- 0.19; ENF -3.70 +/- 0.59; MF -3.16 +/- 0.55 (p = <0.0001 for each combination
 ## DBF
 # Rc ~ Hmax 
 summary(lm(log10(rugosity) ~ log10(can_max_ht), data = DBF))
@@ -562,8 +562,8 @@ cst %>%
   summary(lm(fhd ~ can_max_ht, data = cst))
 # trying with data tabl
                    
-                   max_ht = mean(can_max_ht), max.sd = sd(can_max_ht)) %>%
-  data.frame() -> bob
+ #                  max_ht = mean(can_max_ht), max.sd = sd(can_max_ht)) %>%
+#  data.frame() -> bob
 
 
 
