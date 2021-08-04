@@ -148,6 +148,16 @@ df3$crownArea <- pi * (df3$maxCrownDiameter / 2) * (df3$ninetyCrownDiameter / 2)
 
 
 
+#  make regression stats
+summary(lm(log10(crownArea) ~ log10(height), data = subset(df3, pft == "ENF")))
+summary(lm(log10(crownArea) ~ log10(height), data = subset(df3, pft == "DBF")))
+
+# ANCOVA for difference in slopes
+require(car)
+
+# make the base ANOVA
+fit.pft.neon <- aov(log10(crownArea) ~ log10(height) + pft, data = df3)
+Anova(fit.pft.neon, type="III")
 
 x11(width = 4, height = 4)
 p.log <- ggplot(df3, aes(x = log10(height), y = log10(crownArea), fill = pft, alpha = pft))+

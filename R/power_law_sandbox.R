@@ -319,7 +319,7 @@ slopes <- data.frame(pft = "",
                      ci = 0)
 
 
-—DBF -2.29 +/- 0.19; ENF -3.70 +/- 0.59; MF -3.16 +/- 0.55 (p = <0.0001 for each combination
+#—DBF -2.29 +/- 0.19; ENF -3.70 +/- 0.59; MF -3.16 +/- 0.55 (p = <0.0001 for each combination
 ## DBF
 # Rc ~ Hmax 
 summary(lm(log10(rugosity) ~ log10(can_max_ht), data = DBF))
@@ -542,9 +542,12 @@ geom_encircle(aes(x = can_max_ht, y = rugosity),
               data = subset(cst, pft == "DBF"))+
   geom_encircle(aes(x = can_max_ht, y = rugosity),
                 data = subset(cst, pft == "ENF"))
-pft.rc <- aov(log10(rugosity) ~ log10(can_max_ht) * as.factor(pft), data = cst)
 
-TukeyHSD(pft.rc)
+
+##### difference in slopes
+pft.rc <- aov(log10(rugosity) ~ log10(can_max_ht) + as.factor(pft), data = cst)
+Anova(pft.rc, type="III")
+#TukeyHSD(pft.rc)
 #######
 # linear regression
 cst %>%
