@@ -1,12 +1,13 @@
 # This script coallates NEON veg structure data
 # Author:  jeff atkins (@atkinsjeff)
 
-# dependenancies
+# dependentcies
 require(tidyverse)
 require(readr)
 require(data.table)
 require(ggplot2)
 require(RColorBrewer)
+library(lsmeans)
 
 # NEON data files director
 data.dir <- "./data/neon/"
@@ -23,22 +24,6 @@ map.files %>%
   map_df(~read_csv(., col_types = cols(.default = "c"))) -> mapp
 
 
-# ind is the data frame of all indinviduals. We need to check the values and test what we want
-
-unique(ind$siteID)
-unique(ind$shape)
-# plantStatus
-# growthForm
-# 
-# stemDiameter
-# height
-# 
-# baseCrownDiameter
-# maxCrownDiameter <chr>,
-# ninetyCrownDiameter <chr>,
-# canopyPosition <chr>,
-# shape <chr>,
-# maxBaseCrownDiameter <chr>, ninetyBaseCrownDiameter <chr>,
 
 # sort ind down
 pft <- ind[, c("domainID", "siteID", "plotID", "individualID", "plantStatus", "growthForm", "measurementHeight", "stemDiameter",
@@ -63,6 +48,8 @@ map %>%
 
 # merge them together
 big.boi <- merge(pft, map, by = c("individualID"))
+
+
 
 # NEON taxons
 tax.jenk <- read.csv("./data/neon_taxon_jenkins.csv")
@@ -106,19 +93,7 @@ df$crownArea <- pi * (df$maxCrownDiameter / 2) * (df$ninetyCrownDiameter / 2)
 
 
 df %>%
-  filter(pft == "ENF" | pft == "DBF") ->df3
-
-x11(width = 10, height = 4)
-ggplot(df3, aes(x = height, y = maxCrownDiameter))+
-  geom_bin2d(bins = 25, color = "white")+
-  scale_fill_gradient(low = "#00AFBB", high = "#FC4E07", name = "No. of Trees", limits = c(0, 100), breaks = c(0, 20, 40, 60, 80))+
-  xlab(expression("Height [m]"))+
-  ylab(expression("Max Crown Diameter [m]"))+
-  theme_bw()+
-  stat_smooth(method = "lm", color = "#444444", size = 1.5, se = FALSE)+
-  theme(legend.justification = c(0.01, 0.98), legend.position = c(0.01, 0.98), 
-        legend.background = element_rect(linetype = 1, size = 0.5, color = "black"))+
-  facet_grid(.~pft)
+  filter(pft == "ENF" | pft == "DBF") -> df3
 
 
 x11()
@@ -147,6 +122,7 @@ ggplot(df, aes(x = height, y = maxCrownDiameter, fill = pft, alpha = pft))+
 df3$crownArea <- pi * (df3$maxCrownDiameter / 2) * (df3$ninetyCrownDiameter / 2)
 
 
+##### STATS!
 
 #  make regression stats
 summary(lm(log10(crownArea) ~ log10(height), data = subset(df3, pft == "ENF")))
@@ -156,10 +132,9 @@ summary(lm(log10(crownArea) ~ log10(height), data = subset(df3, pft == "DBF")))
 require(car)
 
 # make the base ANOVA
-fit.pft.neon <- aov(log10(crownArea) ~ log10(height) + pft, data = df3)
+fit.pft.neon <- aov(log10(crownArea) ~ log10(height) + pft + pft:log10(height) , data = df3)
 Anova(fit.pft.neon, type="III")
 
-x11(width = 4, height = 4)
 p.log <- ggplot(df3, aes(x = log10(height), y = log10(crownArea), fill = pft, alpha = pft))+
   geom_point(size = 2, shape = 21)+
   scale_fill_brewer(palette = "Dark2")+
@@ -178,33 +153,33 @@ p.log <- ggplot(df3, aes(x = log10(height), y = log10(crownArea), fill = pft, al
         legend.title = element_blank(), 
         legend.background = element_rect(linetype = 1, size = 0.5, color = "black"),
         legend.text = element_text(size = 12))
-
-# make area
-df3$baseCrownArea <- pi * (df3$maxBaseCrownDiameter / 2) * (df3$ninetyBaseCrownDiameter / 2)
-
-
-
-
-x11(width = 4, height = 4)
-ggplot(df3, aes(x = log(height), y = log(baseCrownArea), fill = pft, alpha = pft))+
-  geom_point(size = 2, shape = 21)+
-  scale_fill_brewer(palette = "Dark2")+
-  scale_alpha_manual(values = c(0.5, 0.5, 0.5), guide = FALSE)+
-  xlab(expression("ln Height [m]"))+
-  ylab(expression(" ln Crown Diameter [m]"))+
-  theme_light()+
-  geom_smooth(data = subset(df3, pft == "DBF"),
-              method = lm, se = FALSE, color = "#1B9E77", size = 2, show.legend = FALSE)+
-  geom_smooth(data = subset(df3, pft == "ENF"),
-              method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
-  # geom_smooth(data = subset(cst, pft == "MF"),
-  #             method = lm, se = FALSE, color = "#7570B3", size = 2, show.legend = FALSE)+
-  theme(legend.justification = c(0.98, 0), 
-        legend.position = c(0.98, 0.01),
-        legend.title = element_blank(), 
-        legend.background = element_rect(linetype = 1, size = 0.5, color = "black"),
-        legend.text = element_text(size = 12))
-
+# 
+# # make area
+# df3$baseCrownArea <- pi * (df3$maxBaseCrownDiameter / 2) * (df3$ninetyBaseCrownDiameter / 2)
+# 
+# 
+# 
+# 
+# x11(width = 4, height = 4)
+# ggplot(df3, aes(x = log(height), y = log(baseCrownArea), fill = pft, alpha = pft))+
+#   geom_point(size = 2, shape = 21)+
+#   scale_fill_brewer(palette = "Dark2")+
+#   scale_alpha_manual(values = c(0.5, 0.5, 0.5), guide = "none")+
+#   xlab(expression("ln Height [m]"))+
+#   ylab(expression(" ln Crown Diameter [m]"))+
+#   theme_light()+
+#   geom_smooth(data = subset(df3, pft == "DBF"),
+#               method = lm, se = FALSE, color = "#1B9E77", size = 2, show.legend = FALSE)+
+#   geom_smooth(data = subset(df3, pft == "ENF"),
+#               method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
+#   # geom_smooth(data = subset(cst, pft == "MF"),
+#   #             method = lm, se = FALSE, color = "#7570B3", size = 2, show.legend = FALSE)+
+#   theme(legend.justification = c(0.98, 0), 
+#         legend.position = c(0.98, 0.01),
+#         legend.title = element_blank(), 
+#         legend.background = element_rect(linetype = 1, size = 0.5, color = "black"),
+#         legend.text = element_text(size = 12))
+# 
 
 
 # make ratio
@@ -316,8 +291,6 @@ p.elev <- ggplot(df5, aes(x = elevation, y =CDH.ratio, fill = pft, alpha = pft))
 
 
 require(cowplot)
-x11(width = 10, height = 4)
-plot_grid(p1, p2, p3, labels =  c("A", "B", "C"), nrow = 1, label_size = 12)
 
 top_row <- plot_grid(p.log, p.elev, p.lat, labels = c('A', 'B', 'C'), nrow = 1, label_size = 12)
 
