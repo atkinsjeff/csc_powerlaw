@@ -260,13 +260,58 @@ plot_grid(p1, p2, p3, p4, p5, p6, labels =  c("A", "B", "C", "D", "E", "F"), nro
 
 
 
+##################
+power.law <- read.csv("./data/power_law_diagnostic.csv")
+
+# remove all 
+power.law$PFT <- gsub("[^[:alnum:]]", " ", power.law$PFT)
+power.law$PFT <- gsub(" ", "", power.law$PFT, fixed = TRUE)
+
+power.law %>%
+  dplyr::filter(PFT != "All") %>%
+  dplyr::filter(Regression.Method == "OLS") %>%
+  dplyr::filter()
+  data.frame() -> power.law
 
 
+## load package
+library(ggplot2)
+library(ggsignif) 
 
+## create summary data from Edgar Anderson's Iris data
+Group <- c("A", "B", "C")
+DvValue <- c(0.246, 1.326, 2.026)
+SE <- c(0.029, 0.029, 0.029)
+data <- data.frame(Group, DvValue, SE)
 
+## plot
 
+x11()
+ggplot(power.law, aes(x = PFT, y = Slope, fill = y)) +
+  geom_bar(stat = "identity") +
+  theme_bw()+
+  geom_errorbar(aes(ymin = Slope - b_lower, ymax = Slope + b_upper), width = .2) +
+  geom_signif(comparisons = list(c("A", "B")), annotations="***", y_position = 2.2, tip_length = 0.03) +
+  geom_signif(comparisons = list(c("A", "C")), annotations="***", y_position = 2.6, tip_length = 0.03) +
+  geom_signif(comparisons = list(c("B", "C")), annotations="***", y_position = 2.4, tip_length = 0.03) +
+  labs(y = "Slope") +
+  theme(plot.title = element_text(hjust = 0.5))+
+  facet_wrap(X ~ y)
 
-
+fill = pft),
+alpha = 0.8, color = "white")+
+  labs(
+    x = "Max Canopy Height [m]",
+    y = "Site",
+    title = "Max Canopy Height by Site")+
+  scale_y_discrete(expand = c(0, 0)) +
+  scale_x_continuous(expand = c(0, 0))+
+  scale_fill_manual(
+    breaks = c("DBF", "ENF", "MF"),
+    labels = c("DBF", "ENF", "MF"),
+    values = c("DBF" = "#1B9E77",
+               "ENF" = "#D95F02", 
+               "MF" = "#7570B3"))
 ### FIGURE 3 (TOP)
 
 

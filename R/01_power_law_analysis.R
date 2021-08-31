@@ -25,37 +25,100 @@ csc %>%
   group_by(plotID, siteID, pft) %>%
   summarise_at(.vars = vars(moch, can.max.ht, rugosity, enl, fhd),
                .funs = "mean") %>%
+  summarise(transect.length = sum(transect.length))%>%
   data.frame() -> cst
 
 names(cst) <- gsub(x = names(cst), pattern = "\\.", replacement = "_")  
 
 
 
+csc %>%
+  filter(cover.fraction > 25) %>%
+  filter(can.max.ht < 50) %>%
+  filter(management == "unmanaged") %>%
+  filter(disturbance == "") %>%
+  filter(plotID != "?" & plotID != "") %>%
+  select(siteID, plotID, transect.length, pft) %>%
+  group_by(plotID, siteID, pft) %>%
+  summarise(transect.length = sum(transect.length, na.rm = TRUE))%>%
+  data.frame() -> cst.length
  
-# 1) model without any random effects 
-rug.max.ht <- lm(log10(rugosity) ~ log10(can_max_ht), data = cst)
+names(cst.length) <- gsub(x = names(cst.length), pattern = "\\.", replacement = "_")  
 
-# 2) model with random intercept 
-rug.max.ht.int <- lmer(log10(rugosity) ~ log10(can_max_ht) + (1|pft), data = cst, REML = FALSE)
+# test for differences in transect length
 
-# 3) model with random slope 
-rug.max.ht.slope <- lmer(log10(rugosity) ~ (log10(can_max_ht)|pft), data = cst, REML = FALSE)
+# number of transects analysis.
+csc %>%
+  filter(cover.fraction > 25) %>%
+  filter(can.max.ht < 50) %>%
+  filter(management == "unmanaged") %>%
+  filter(disturbance == "") -> no.count
+dim(no.count)
 
-# 4) model with random slope and random intercept, see which has lowest AIC
-rug.max.ht.int.slope <- lmer(log10(rugosity) ~ (log10(can_max_ht)|pft) + (1|pft), data = cst, REML = FALSE)
+cst.test <- merge(cst.length, cst)
 
-# AICc values
-AICc(rug.max.ht)
-AICc(rug.max.ht.int)
-AICc(rug.max.ht.slope)
-AICc(rug.max.ht.int.slope)
+x11()
+plot(cst.test$transect_length, cst.test$rugosity)
 
-ranef(rug.max.ht.int.slope)
+x11()
+plot(cst.test$transect_length, cst.test$moch)
 
-# anova results
-anova(rug.max.ht, rug.max.ht.int, rug.max.ht.slope, rug.max.ht.int.slope)
+x11()
+plot(cst.test$rugosity/cst.test$transect_length, cst.test$moch/cst.test$transect_length)
+
+cst.test %>%
+  group_by(siteID) %>%
+  summarise(transect.length = sum(transect_length, na.rm = TRUE))
+# 
+# # 1) model without any random effects 
+# rug.max.ht <- lm(log10(rugosity) ~ log10(can_max_ht), data = cst)
+# 
+# # 2) model with random intercept 
+# rug.max.ht.int <- lmer(log10(rugosity) ~ log10(can_max_ht) + (1|pft), data = cst, REML = FALSE)
+# 
+# # 3) model with random slope 
+# rug.max.ht.slope <- lmer(log10(rugosity) ~ (log10(can_max_ht)|pft), data = cst, REML = FALSE)
+# 
+# # 4) model with random slope and random intercept, see which has lowest AIC
+# rug.max.ht.int.slope <- lmer(log10(rugosity) ~ (log10(can_max_ht)|pft) + (1|pft), data = cst, REML = FALSE)
+# 
+# # AICc values
+# AICc(rug.max.ht)
+# AICc(rug.max.ht.int)
+# AICc(rug.max.ht.slope)
+# AICc(rug.max.ht.int.slope)
+# 
+# ranef(rug.max.ht.int.slope)
+# TukeyHSD(aov.fhd, "pft")
+
+# ancova results
+summary(aov(log10(enl) ~ log10(can_max_ht) * pft, data = cst))
+TukeyHSD(aov(log10(enl) ~ log10(can_max_ht) * pft, data = cst), "pft")
 
 
+#### FHD
+summary(aov(log10(fhd) ~ log10(can_max_ht) * pft, data = cst))
+TukeyHSD(aov(log10(fhd) ~ log10(can_max_ht) * pft, data = cst), "pft")
+
+summary(aov(log10(fhd) ~ log10(moch) * pft, data = cst))
+TukeyHSD(aov(log10(fhd) ~ log10(moch) * pft, data = cst), "pft")
+
+
+summary(aov(log10(rugosity) ~ log10(can_max_ht) * pft, data = cst))
+TukeyHSD(aov(log10(rugosity) ~ log10(can_max_ht) * pft, data = cst), "pft")
+
+summary(aov(log10(rugosity) ~ log10(moch) * pft, data = cst))
+TukeyHSD(aov(log10(rugosity) ~ log10(moch) * pft, data = cst), "pft")
+
+
+summary(aov(log10(enl) ~ log10(moch) * pft, data = cst))
+TukeyHSD(aov(log10(enl) ~ log10(moch) * pft, data = cst), "pft")
+
+summary(aov(log10(fhd) ~ log10(moch) * pft, data = cst))
+TukeyHSD(aov(log10(fhd) ~ log10(moch) * pft, data = cst), "pft")
+
+summary(aov(log10(rugosity) ~ log10(moch) * pft, data = cst))
+TukeyHSD(aov(log10(rugosity) ~ log10(moch) * pft, data = cst), "pft")
 #####
 model <- lm(log10(rugosity) ~ log10(can_max_ht)*pft, data = cst)
 print(model)
@@ -92,7 +155,6 @@ pairs(m.lst)
 
 
 
-
 # PFT specific datasets
 cst %>%
   filter(pft == "DBF") %>%
@@ -111,6 +173,7 @@ cst %>%
 # Rc ~ Hmax 
 summary(lm(log10(rugosity) ~ log10(can_max_ht), data = DBF))
 confint(lm(log10(rugosity) ~ log10(can_max_ht), data = DBF))
+
 
 
 summary(lm(log10(rugosity) ~ log10(can_max_ht), data = ENF))
