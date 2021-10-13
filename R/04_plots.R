@@ -44,8 +44,8 @@ csc %>%
                .funs = "mean") %>%
   data.frame() -> cst
 
-# cleans up naming conventions
 names(cst) <- gsub(x = names(cst), pattern = "\\.", replacement = "_")  
+
 
 
 # builds list of sites
@@ -172,14 +172,14 @@ p1 <- ggplot(cst, aes(x = log10(can_max_ht), y = log10(rugosity), fill = pft, al
 p2 <- ggplot(cst, aes(x = log10(can_max_ht), y = log10(enl), fill = pft, alpha = pft))+
   geom_point(size = 2, shape = 21)+
   scale_fill_brewer(palette = "Dark2")+
-  scale_alpha_manual(values = c(0.5, 0.5, 0.5), guide = FALSE)+
+  scale_alpha_manual(values = c(0.2, 0.2, 0.2), guide = FALSE)+
   xlab(expression("H"[Max]*{}*" [m]"))+
   ylab("ENL")+
   theme_light()+
   geom_smooth(data = subset(cst, pft == "DBF"),
               method = lm, se = FALSE, color = "#1B9E77", size = 2, show.legend = FALSE)+
-  geom_smooth(data = subset(cst, pft == "ENF"),
-              method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
+  # geom_smooth(data = subset(cst, pft == "ENF"),
+  #             method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
   geom_smooth(data = subset(cst, pft == "MF"),
               method = lm, se = FALSE, color = "#7570B3", size = 2, show.legend = FALSE)+
   theme(legend.position = "none")
@@ -211,16 +211,16 @@ plot_grid(p1, p2, p3, labels =  c("A", "B", "C"), nrow = 1, label_size = 12)
 p4 <- ggplot(cst, aes(x = log10(moch), y = log10(rugosity), fill = pft, alpha = pft))+
   geom_point(size = 2, shape = 21)+
   scale_fill_brewer(palette = "Dark2")+
-  scale_alpha_manual(values = c(0.1, 0.1, 0.5), guide = FALSE)+
+  scale_alpha_manual(values = c(0.1, 0.5, 0.5), guide = FALSE)+
   xlab("MOCH [m]")+
   ylab(expression("R"[c]*{}*" [m]"))+
   theme_light()+  
-  # geom_smooth(data = subset(cst, pft == "DBF"),
-  #             method = lm, se = FALSE, color = "#1B9E77", size = 2, show.legend = FALSE)+
+  geom_smooth(data = subset(cst, pft == "DBF"),
+              method = lm, se = FALSE, color = "#1B9E77", size = 2, show.legend = FALSE)+
   geom_smooth(data = subset(cst, pft == "MF"),
               method = lm, se = FALSE, color = "#7570B3", size = 2, show.legend = FALSE)+
-  # geom_smooth(data = subset(cst, pft == "ENF"),
-  #             method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
+  geom_smooth(data = subset(cst, pft == "ENF"),
+              method = lm, se = FALSE, color = "#D95F02", size = 2, show.legend = FALSE)+
   theme(legend.position = "none")
 
 p5 <- ggplot(cst, aes(x = log10(moch), y = log10(enl), fill = pft, alpha = pft))+
@@ -242,7 +242,7 @@ p5 <- ggplot(cst, aes(x = log10(moch), y = log10(enl), fill = pft, alpha = pft))
 p6 <- ggplot(cst, aes(x = log10(moch), y = log10(fhd), fill = pft, alpha = pft))+
   geom_point(size = 2, shape = 21)+
   scale_fill_brewer(palette = "Dark2")+
-  scale_alpha_manual(values = c(0.1, 0.1, 0.5), guide = FALSE)+
+  scale_alpha_manual(values = c(0.2, 0.2, 0.2), guide = FALSE)+
   xlab("MOCH [m]")+
   ylab("FHD")+
   theme_light()+

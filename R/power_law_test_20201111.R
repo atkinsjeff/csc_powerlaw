@@ -1,10 +1,10 @@
 ## test power law scaling between canopy height and canopy complexity
 
-rm(list=ls())
+# rm(list=ls())
 
 library(dplyr)
 
-dat<-read.csv("~/Box Sync/ForestComplexity/PowerLawScaling/power_law_csc_subset_20201110.csv",
+dat<-read.csv("./DATA/power_law_csc_subset_20201110.csv",
               stringsAsFactors = F)
 
 dat<-dat[dat$plotID!="" & dat$plotID!="?",]
